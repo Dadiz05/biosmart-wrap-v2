@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: system-ui, sans-serif;
+}
+
+#reader {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+}
+
+/* Camera video */
+#reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important; /* 🔥 FIX zoom giả */
+  background: black;
+}
+
+/* Canvas */
+#reader canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
