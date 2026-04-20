@@ -1,5 +1,5 @@
-const CACHE_NAME = "biosmart-wrap-v1";
-const PRECACHE_URLS = ["/", "/index.html", "/manifest.json"];
+const CACHE_NAME = "biosmart-wrap-v3";
+const PRECACHE_URLS = ["/", "/index.html", "/manifest.json", "/pwa-logo.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
