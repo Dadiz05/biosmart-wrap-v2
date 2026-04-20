@@ -13,6 +13,62 @@ type Props = {
   lightMode?: boolean;
 };
 
+function statusLabel(status: "fresh" | "degraded" | "spoiled" | "critical" | "blocked") {
+  switch (status) {
+    case "fresh":
+      return "Tươi";
+    case "degraded":
+      return "Giảm chất lượng";
+    case "spoiled":
+      return "Ôi thiu";
+    case "critical":
+      return "Hỏng nặng";
+    case "blocked":
+      return "Không thể quét QR";
+  }
+}
+
+function phRange(status: "fresh" | "degraded" | "spoiled" | "critical") {
+  switch (status) {
+    case "fresh":
+      return "5-6";
+    case "degraded":
+      return "6.5-7";
+    case "spoiled":
+      return "7.5-8.5";
+    case "critical":
+      return "8.5-9.5";
+  }
+}
+
+function indicatorLabel(color: "purple" | "blue" | "green" | "yellow") {
+  switch (color) {
+    case "purple":
+      return "Tím";
+    case "blue":
+      return "Xanh lam";
+    case "green":
+      return "Xanh lục";
+    case "yellow":
+      return "Vàng";
+  }
+}
+
+function statusBackground(status: "fresh" | "degraded" | "spoiled" | "critical" | "blocked") {
+  switch (status) {
+    case "fresh":
+      return { bg: "#1fce10", text: "#ffffff" };
+    case "degraded":
+      return { bg: "#f7f60e", text: "#111827" };
+    case "spoiled":
+      return { bg: "#faa008", text: "#111827" };
+    case "critical":
+      return { bg: "#b81414", text: "#ffffff" };
+    case "blocked":
+      return { bg: "#334155", text: "#ffffff" };
+  }
+}
+
 export default function QRScanner({ open, onClose, lightMode = false }: Props) {
   const { setAI, setLastQrId, setStatus, setError, pushHistory, reset, aiResult, lastError, status } =
     useStore();
@@ -333,23 +389,17 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
 
       {/* 🎯 RESULT */}
       {result && (
+        (() => {
+          const palette = statusBackground(result);
+          return (
         <div
-          className={`fixed inset-0 z-[10050] flex flex-col items-center justify-center text-center pointer-events-auto ${
-            result === "blocked"
-              ? "bg-slate-700 text-white"
-              : aiResult?.color === "purple"
-                ? "bg-violet-700 text-white"
-                : aiResult?.color === "blue"
-                  ? "bg-blue-600 text-white"
-                  : aiResult?.color === "green"
-                    ? "bg-green-600 text-white"
-                    : "bg-lime-500 text-slate-900"
-          }`}
+          className="fixed inset-0 z-[10050] flex flex-col items-center justify-center text-center pointer-events-auto"
+          style={{ backgroundColor: palette.bg, color: palette.text }}
         >
           <div className="px-6">
             <div
               className={`mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl ring-1 ${
-                result === "blocked" || aiResult?.color === "purple" || aiResult?.color === "blue" || aiResult?.color === "green"
+                palette.text === "#ffffff"
                   ? "bg-white/15 ring-white/20"
                   : "bg-black/10 ring-black/15"
               }`}
@@ -362,39 +412,16 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
             </div>
 
             <h1 className="text-3xl font-bold mb-3">
-              {result === "fresh"
-                ? "Tươi"
-                : result === "blocked"
-                  ? "Không thể quét QR"
-                  : result === "degraded"
-                    ? "Giảm chất lượng"
-                    : result === "spoiled"
-                      ? "Ôi thiu"
-                      : "Hỏng nặng"}
+              {statusLabel(result)}
             </h1>
 
           {aiResult && (
             <>
-              <p className="mb-1">Trạng thái: <span className="font-semibold">
-                {aiResult.status === "fresh"
-                  ? "Tươi"
-                  : aiResult.status === "degraded"
-                    ? "Giảm chất lượng"
-                    : aiResult.status === "spoiled"
-                      ? "Ôi thiu"
-                      : "Hỏng nặng"}
-              </span></p>
-              <p className="mb-1">pH: <span className="font-semibold">{aiResult.ph}</span></p>
+              <p className="mb-1">Màu nền: <span className="font-semibold">{palette.bg}</span></p>
+              <p className="mb-1">Trạng thái: <span className="font-semibold">{statusLabel(aiResult.status)}</span></p>
+              <p className="mb-1">Độ pH: <span className="font-semibold">{phRange(aiResult.status)}</span></p>
               <p className="text-sm opacity-95">
-                Màu nền: <span className="font-semibold">
-                  {aiResult.color === "purple"
-                    ? "Tím"
-                    : aiResult.color === "blue"
-                      ? "Xanh lam"
-                      : aiResult.color === "green"
-                        ? "Xanh"
-                        : "Xanh vàng"}
-                </span>
+                Màu chỉ thị pH: <span className="font-semibold">{indicatorLabel(aiResult.color)}</span>
               </p>
             </>
           )}
@@ -418,7 +445,7 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
               onClose();
             }}
             className={`mt-3 inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold ring-1 backdrop-blur active:scale-[0.99] ${
-              result === "blocked" || aiResult?.color === "purple" || aiResult?.color === "blue" || aiResult?.color === "green"
+              palette.text === "#ffffff"
                 ? "bg-black/15 ring-white/20 text-white"
                 : "bg-white/40 ring-black/20 text-slate-900"
             }`}
@@ -428,6 +455,8 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
           </button>
           </div>
         </div>
+          );
+        })()
       )}
     </div>
   );

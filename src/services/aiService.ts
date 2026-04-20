@@ -82,14 +82,14 @@ function detectColorHeuristic(imageData: ImageData): DetectedColor {
 function colorToPhAndStatus(color: DetectedColor): Pick<AIResult, "ph" | "status"> {
   // Map theo bảng nghiệp vụ:
   // - purple: pH 5–6 → tươi
-  // - blue: pH 6.5–7.5 → giảm chất lượng
+  // - blue: pH 6.5–7 → giảm chất lượng
   // - green: pH 7.5–8.5 → ôi thiu
-  // - yellow (xanh vàng): pH 8.5–9.5 → hỏng nặng
+  // - yellow (vàng): pH 8.5–9.5 → hỏng nặng
   switch (color) {
     case "purple":
       return { ph: 5.5, status: "fresh" };
     case "blue":
-      return { ph: 7.0, status: "degraded" };
+      return { ph: 6.8, status: "degraded" };
     case "green":
       return { ph: 8.0, status: "spoiled" };
     case "yellow":
@@ -152,7 +152,7 @@ export async function analyzeColor(input: AnalyzeInput): Promise<AIResult> {
       return { ph: 5.5, color: "purple", status: "fresh", previewDataUrl: input.previewDataUrl };
     }
     if (lastQR === "456") {
-      return { ph: 7.0, color: "blue", status: "degraded", previewDataUrl: input.previewDataUrl };
+      return { ph: 6.8, color: "blue", status: "degraded", previewDataUrl: input.previewDataUrl };
     }
     if (lastQR === "789") {
       return { ph: 8.0, color: "green", status: "spoiled", previewDataUrl: input.previewDataUrl };

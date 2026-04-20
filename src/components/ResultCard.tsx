@@ -8,9 +8,35 @@ function colorLabel(color: "purple" | "blue" | "green" | "yellow") {
     case "blue":
       return "Xanh lam";
     case "green":
-      return "Xanh";
+      return "Xanh lục";
     case "yellow":
-      return "Xanh vàng";
+      return "Vàng";
+  }
+}
+
+function phRange(status: "fresh" | "degraded" | "spoiled" | "critical") {
+  switch (status) {
+    case "fresh":
+      return "5-6";
+    case "degraded":
+      return "6.5-7";
+    case "spoiled":
+      return "7.5-8.5";
+    case "critical":
+      return "8.5-9.5";
+  }
+}
+
+function backgroundHex(status: "fresh" | "degraded" | "spoiled" | "critical") {
+  switch (status) {
+    case "fresh":
+      return "#1fce10";
+    case "degraded":
+      return "#f7f60e";
+    case "spoiled":
+      return "#faa008";
+    case "critical":
+      return "#b81414";
   }
 }
 
@@ -20,13 +46,13 @@ export default function ResultCard({ lightMode = false }: { lightMode?: boolean 
   if (!aiResult) return null;
 
   const colorToneClass =
-    aiResult.color === "purple"
-      ? "bg-violet-50 text-violet-950 ring-violet-200"
-      : aiResult.color === "blue"
-        ? "bg-blue-50 text-blue-950 ring-blue-200"
-        : aiResult.color === "green"
-          ? "bg-green-50 text-green-950 ring-green-200"
-          : "bg-lime-50 text-lime-900 ring-lime-200";
+    aiResult.status === "fresh"
+      ? "bg-green-50 text-green-950 ring-green-200"
+      : aiResult.status === "degraded"
+        ? "bg-yellow-50 text-yellow-900 ring-yellow-200"
+        : aiResult.status === "spoiled"
+          ? "bg-orange-50 text-orange-900 ring-orange-200"
+          : "bg-red-50 text-red-900 ring-red-200";
 
   return (
     <div
@@ -45,9 +71,9 @@ export default function ResultCard({ lightMode = false }: { lightMode?: boolean 
             lightMode ? "bg-white ring-slate-200" : "bg-slate-50 ring-slate-200"
           }`}
         >
-          <div className="text-xs font-medium text-slate-600">🌡 pH (AI)</div>
-          <div className="mt-1 text-2xl font-semibold text-slate-900">
-            {aiResult.ph}
+          <div className="text-xs font-medium text-slate-600">🟩 Màu nền</div>
+          <div className="mt-1 text-sm font-semibold text-slate-900">
+            {backgroundHex(aiResult.status)}
           </div>
         </div>
 
@@ -56,9 +82,31 @@ export default function ResultCard({ lightMode = false }: { lightMode?: boolean 
             lightMode ? "bg-white ring-slate-200" : "bg-slate-50 ring-slate-200"
           }`}
         >
-          <div className="text-xs font-medium text-slate-600">🎨 Màu nền</div>
+          <div className="text-xs font-medium text-slate-600">🌡 Độ pH</div>
+          <div className="mt-1 text-sm font-semibold text-slate-900">
+            {phRange(aiResult.status)}
+          </div>
+        </div>
+
+        <div
+          className={`rounded-2xl p-3 ring-1 ${
+            lightMode ? "bg-white ring-slate-200" : "bg-slate-50 ring-slate-200"
+          }`}
+        >
+          <div className="text-xs font-medium text-slate-600">🎨 Màu chỉ thị pH</div>
           <div className="mt-1 text-sm font-semibold text-slate-900">
             {colorLabel(aiResult.color)}
+          </div>
+        </div>
+
+        <div
+          className={`rounded-2xl p-3 ring-1 ${
+            lightMode ? "bg-white ring-slate-200" : "bg-slate-50 ring-slate-200"
+          }`}
+        >
+          <div className="text-xs font-medium text-slate-600">✅ Trạng thái</div>
+          <div className="mt-1 text-sm font-semibold text-slate-900">
+            <StatusBadge status={aiResult.status} />
           </div>
         </div>
       </div>

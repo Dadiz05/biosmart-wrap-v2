@@ -8,9 +8,35 @@ function colorLabel(color: "purple" | "blue" | "green" | "yellow") {
     case "blue":
       return "Xanh lam";
     case "green":
-      return "Xanh";
+      return "Xanh lục";
     case "yellow":
-      return "Xanh vàng";
+      return "Vàng";
+  }
+}
+
+function phRange(status: "fresh" | "degraded" | "spoiled" | "critical") {
+  switch (status) {
+    case "fresh":
+      return "5-6";
+    case "degraded":
+      return "6.5-7";
+    case "spoiled":
+      return "7.5-8.5";
+    case "critical":
+      return "8.5-9.5";
+  }
+}
+
+function backgroundHex(status: "fresh" | "degraded" | "spoiled" | "critical") {
+  switch (status) {
+    case "fresh":
+      return "#1fce10";
+    case "degraded":
+      return "#f7f60e";
+    case "spoiled":
+      return "#faa008";
+    case "critical":
+      return "#b81414";
   }
 }
 
@@ -119,9 +145,11 @@ export default function ScanHistory({
                   </div>
                   {r.aiResult ? (
                     <div className={`mt-1 text-[11px] ${lightMode ? "text-slate-600" : "text-white/65"}`}>
-                      pH: <span className={lightMode ? "text-slate-900" : "text-white/90"}>{r.aiResult.ph}</span>
+                      Nền: <span className={lightMode ? "text-slate-900" : "text-white/90"}>{backgroundHex(r.aiResult.status)}</span>
                       <span className={lightMode ? "text-slate-400" : "text-white/40"}> • </span>
-                      Màu: <span className={lightMode ? "text-slate-900" : "text-white/90"}>{colorLabel(r.aiResult.color)}</span>
+                      pH: <span className={lightMode ? "text-slate-900" : "text-white/90"}>{phRange(r.aiResult.status)}</span>
+                      <span className={lightMode ? "text-slate-400" : "text-white/40"}> • </span>
+                      Chỉ thị: <span className={lightMode ? "text-slate-900" : "text-white/90"}>{colorLabel(r.aiResult.color)}</span>
                     </div>
                   ) : null}
                 </div>
