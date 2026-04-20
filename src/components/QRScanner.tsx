@@ -151,6 +151,13 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
     setScanning(false);
   }, [safeStopScanner, setScanning]);
 
+  const handleCloseScanner = useCallback(() => {
+    void closeModal().then(() => {
+      reset();
+      onClose();
+    });
+  }, [closeModal, onClose, reset]);
+
   // 🚀 START SCAN
   const startScan = async () => {
     if (isScanningRef.current) return;
@@ -324,11 +331,7 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
             </div>
             <button
               type="button"
-              onClick={async () => {
-                await closeModal();
-                reset();
-                onClose();
-              }}
+              onClick={handleCloseScanner}
               className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold ring-1 active:scale-[0.98] ${
                 lightMode
                   ? "bg-slate-100 text-slate-700 ring-slate-200"
@@ -417,8 +420,6 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
 
           {aiResult && (
             <>
-              <p className="mb-1">Màu nền: <span className="font-semibold">{palette.bg}</span></p>
-              <p className="mb-1">Trạng thái: <span className="font-semibold">{statusLabel(aiResult.status)}</span></p>
               <p className="mb-1">Độ pH: <span className="font-semibold">{phRange(aiResult.status)}</span></p>
               <p className="text-sm opacity-95">
                 Màu chỉ thị pH: <span className="font-semibold">{indicatorLabel(aiResult.color)}</span>
@@ -428,9 +429,9 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
 
           <button
             type="button"
-            onClick={async () => {
+            onClick={() => {
               setResult(null);
-              await startScan();
+              void startScan();
             }}
             className="mt-6 inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3 text-black font-semibold shadow-lg shadow-black/15 active:scale-[0.99]"
           >
@@ -439,11 +440,7 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
           </button>
           <button
             type="button"
-            onClick={async () => {
-              await closeModal();
-              reset();
-              onClose();
-            }}
+            onClick={handleCloseScanner}
             className={`mt-3 inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold ring-1 backdrop-blur active:scale-[0.99] ${
               palette.text === "#ffffff"
                 ? "bg-black/15 ring-white/20 text-white"
