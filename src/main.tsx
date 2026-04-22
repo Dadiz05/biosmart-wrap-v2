@@ -9,6 +9,10 @@ if ("serviceWorker" in navigator) {
       .then(() => console.log("✅ SW registered"))
       .catch((err) => console.log("❌ SW error", err));
   });
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
 }
 
 createRoot(document.getElementById('root')!).render(

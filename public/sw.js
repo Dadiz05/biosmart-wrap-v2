@@ -1,5 +1,69 @@
-const CACHE_NAME = "biosmart-wrap-v4";
-const PRECACHE_URLS = ["/", "/index.html", "/manifest.json", "/pwa-logo.png"];
+const CACHE_NAME = "biosmart-wrap-v5";
+const PRECACHE_URLS = [
+  "/",
+  "/index.html",
+  "/offline.html",
+  "/manifest.json",
+  "/pwa-logo.png",
+  "/brand/logo.png",
+  "/qr/original-fresh.svg",
+  "/qr/dataset/manifest.json",
+  "/qr/dataset/index.html",
+  "/qr/dataset/stage-1-fresh-front.svg",
+  "/qr/dataset/stage-1-fresh-tilt.svg",
+  "/qr/dataset/stage-1-fresh-macro.svg",
+  "/qr/dataset/stage-2-mild-change-front.svg",
+  "/qr/dataset/stage-2-mild-change-tilt.svg",
+  "/qr/dataset/stage-2-mild-change-macro.svg",
+  "/qr/dataset/stage-3-warning-front.svg",
+  "/qr/dataset/stage-3-warning-tilt.svg",
+  "/qr/dataset/stage-3-warning-macro.svg",
+  "/qr/dataset/stage-4-danger-front.svg",
+  "/qr/dataset/stage-4-danger-tilt.svg",
+  "/qr/dataset/stage-4-danger-macro.svg",
+];
+
+function isSameOrigin(request) {
+  return new URL(request.url).origin === self.location.origin;
+}
+
+function isAssetRequest(request) {
+  const url = new URL(request.url);
+  return (
+    request.destination === "style" ||
+    request.destination === "script" ||
+    request.destination === "image" ||
+    request.destination === "font" ||
+    /\.(?:css|js|mjs|png|jpe?g|svg|webp|ico|woff2?)$/i.test(url.pathname)
+  );
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response.ok && isSameOrigin(request)) {
+    cache.put(request, response.clone()).catch(() => {});
+  }
+  return response;
+}
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request);
+    if (response.ok && isSameOrigin(request)) {
+      cache.put(request, response.clone()).catch(() => {});
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw new Error("network-first failed");
+  }
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,31 +90,47 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+  self.addEventListener("message", (event) => {
+    if (event.data?.type === "SKIP_WAITING") {
+      self.skipWaiting();
+    }
+  });
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
 
-  event.respondWith(
-    (async () => {
-      try {
-        const res = await fetch(request);
-        const url = new URL(request.url);
-        // Network-first for same-origin assets/pages avoids stale UI after new deploys.
-        if (url.origin === self.location.origin && !url.pathname.startsWith("/api/")) {
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, res.clone()).catch(() => {});
-        }
-        return res;
-      } catch (err) {
-        const cached = await caches.match(request);
-        if (cached) return cached;
+    if (!isSameOrigin(request)) {
+      return;
+    }
 
-        // offline fallback for navigations
+    if (request.url.includes("/api/")) {
+      return;
+    }
+
+    event.respondWith(
+      (async () => {
         if (request.mode === "navigate") {
-          return (await caches.match("/")) || Response.error();
+          try {
+            return await networkFirst(request);
+          } catch {
+            return (await caches.match("/offline.html")) || (await caches.match("/")) || Response.error();
+          }
         }
-        throw err;
-      }
-    })()
-  );
+
+        if (isAssetRequest(request)) {
+          try {
+            return await cacheFirst(request);
+          } catch {
+            return (await caches.match(request)) || Response.error();
+          }
+        }
+
+        try {
+          return await networkFirst(request);
+        } catch {
+          return (await caches.match(request)) || Response.error();
+        }
+      })()
+    );
 });

@@ -65,6 +65,12 @@ Frontend và backend deploy tách riêng.
 - Nếu dùng `api/proxy.ts` trên Vercel, cần set `BIOSMART_BACKEND_URL` trỏ tới backend đã deploy, ví dụ `https://your-backend.example.com`.
 - Giá trị `BIOSMART_BACKEND_URL` không được có dấu `/` cuối.
 
+## PWA / Offline
+
+- Ứng dụng có service worker để cache giao diện, QR gốc và dataset mẫu.
+- Khi mất mạng, app sẽ mở trang offline nhẹ thay vì lỗi trắng màn hình.
+- Trên trình duyệt hỗ trợ, người dùng có thể cài app qua nút `Cài app` ở màn hình chính.
+
 ## Demo QR chuan
 
 Home page dung 1 ma goc chuan ban dau (`public/qr/original-fresh.svg`) de test nhanh:

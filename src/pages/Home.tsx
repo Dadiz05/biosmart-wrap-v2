@@ -8,6 +8,12 @@ import Toast from "../components/Toast";
 import { IconCamera, IconPrint } from "../components/Icons";
 import { useStore } from "../store/useStore";
 
+type BeforeInstallPromptEvent = Event & {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+  prompt: () => Promise<void>;
+};
+
 const originalQr = {
   id: "QR-ORIGINAL-FRESH",
   file: "/qr/original-fresh.svg",
@@ -19,11 +25,31 @@ export default function Home() {
   const { status, lastError, aiResult, reset, history, clearHistory, setFeedbackSettings } = useStore();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [lightMode, setLightMode] = useState(() => localStorage.getItem("uiTheme") === "light");
 
   useEffect(() => {
     localStorage.setItem("uiTheme", lightMode ? "light" : "dark");
   }, [lightMode]);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+
+    const handleAppInstalled = () => {
+      setInstallPrompt(null);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
 
   // Load feedback settings from localStorage
   useEffect(() => {
@@ -39,6 +65,13 @@ export default function Home() {
 
   const toastTone = lastError ? "danger" : "info";
 
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice.catch(() => null);
+    setInstallPrompt(null);
+  };
+
   return (
     <div className={`min-h-dvh ${lightMode ? "bg-slate-100 text-slate-900" : "bg-slate-950 text-slate-50"}`}>
       <Toast open={toastOpen && !!lastError} message={lastError ?? ""} tone={toastTone} onClose={() => setToastOpen(false)} />
@@ -53,15 +86,28 @@ export default function Home() {
         >
           <div className="flex items-start justify-between gap-3">
             <BrandMark />
-            <button
-              type="button"
-              onClick={() => setLightMode((value) => !value)}
-              className={`shrink-0 rounded-xl px-3 py-2 text-[11px] font-bold uppercase tracking-wide ring-1 active:scale-[0.98] ${
-                lightMode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-900 ring-white/20"
-              }`}
-            >
-              {lightMode ? "Dark" : "White"}
-            </button>
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              {installPrompt ? (
+                <button
+                  type="button"
+                  onClick={() => void handleInstallApp()}
+                  className={`rounded-xl px-3 py-2 text-[11px] font-bold uppercase tracking-wide ring-1 active:scale-[0.98] ${
+                    lightMode ? "bg-emerald-600 text-white ring-emerald-600" : "bg-emerald-500 text-white ring-emerald-400/30"
+                  }`}
+                >
+                  Cài app
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setLightMode((value) => !value)}
+                className={`shrink-0 rounded-xl px-3 py-2 text-[11px] font-bold uppercase tracking-wide ring-1 active:scale-[0.98] ${
+                  lightMode ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-900 ring-white/20"
+                }`}
+              >
+                {lightMode ? "Dark" : "White"}
+              </button>
+            </div>
           </div>
           <div className="mt-1 text-2xl font-semibold leading-tight">
             Quét QR sinh học <br />
@@ -69,6 +115,15 @@ export default function Home() {
           </div>
           <div className={`mt-3 text-sm ${lightMode ? "text-slate-600" : "text-white/70"}`}>
             Camera đọc một mã gốc tươi chuẩn ban đầu và phân tích màu trực tiếp trên vùng QR trong một lượt quét.
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${lightMode ? "bg-white text-slate-600 ring-slate-200" : "bg-white/10 text-white/75 ring-white/10"}`}>
+              Cache offline
+            </span>
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${lightMode ? "bg-white text-slate-600 ring-slate-200" : "bg-white/10 text-white/75 ring-white/10"}`}>
+              PWA ready
+            </span>
           </div>
 
           <div className="mt-5 grid gap-3">
