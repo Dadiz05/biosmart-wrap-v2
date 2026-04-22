@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "gen:qrs": "node scripts/generate-bulk-qrs.mjs"
+    "gen:qrs": "node scripts/generate-demo-qrs.mjs",
+    "gen:bio-dataset": "node scripts/generate-biological-qr-dataset.mjs"
   },
   "dependencies": {
     "@tensorflow-models/mobilenet": "^2.1.1",

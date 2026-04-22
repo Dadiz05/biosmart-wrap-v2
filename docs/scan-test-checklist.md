@@ -6,6 +6,13 @@
 - Dam bao khong doan mo ID neu QR khong doc duoc.
 - Danh gia fallback khi mau QR mo, thieu sang, bi loa.
 
+## Dataset AI
+
+- Dataset train neu tai theo mau bio QR nam o `public/qr/dataset`.
+- QR goc su dung chung: `QR-ORIGINAL-FRESH`.
+- Stage gom 4 muc: fresh, mild-change, warning, danger.
+- Manifest anh nam o `public/qr/dataset/manifest.json`.
+
 ## Tieu chi pass/fail dinh luong
 
 - QR timeout: fail neu > 12s ma chua doc duoc QR.

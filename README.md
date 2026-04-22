@@ -21,8 +21,8 @@ Các module chính nằm trong `src/scan/`:
 
 UI và state cũng được tách lại:
 
-- `src/components/QRScanner.tsx`: luồng quét 2 bước.
-- `src/components/ResultCard.tsx`: hiển thị QR ID, pH số, trạng thái, confidence.
+- `src/components/QRScanner.tsx`: luồng quét 2 bước với modal kết quả trực quan.
+- `src/components/ResultCard.tsx`: hiển thị kết quả scan với UI thân thiện: vòng tròn màu sắc lớn, từ khóa dễ hiểu ("TƯƠI NGON", "CẦN NẤU KỸ", "CẢNH BÁO", "NGUY HIỂM"), lời giải thích ngắn gọn, và toggle chi tiết kỹ thuật.
 - `src/components/ScanHistory.tsx`: lịch sử scan có pH/confidence.
 - `src/pages/Home.tsx`: điều khiển live/mock mode và chọn demo preset.
 - `src/store/useStore.ts`: lưu scan state, phase, history.
@@ -31,10 +31,11 @@ UI và state cũng được tách lại:
 
 - QR ban đầu cố định, dễ in/dặm thủ công.
 - Camera đọc QR và phân tích màu ngay trên QR trong cùng một lượt scan.
+- **Giao diện kết quả thân thiện với người dùng**: hiển thị trạng thái bằng vòng tròn màu sắc lớn + emoji, từ khóa rõ ràng, giải thích lý do chi tiết.
 - pH trả về dạng liên tục, kèm `phLevel` trên thang 0-200.
 - Có confidence cho QR, màu QR, và pH.
 - Có fallback khi ánh sáng kém, lóa, hoặc vùng QR không rõ.
-- Co bo QR batch 160 ma de test nhanh tren local.
+- Chi tiết kỹ thuật ẩn sau nút toggle để không làm người dùng bối rối.
 
 ## Chạy local
 
@@ -66,12 +67,9 @@ Frontend và backend deploy tách riêng.
 
 ## Demo QR chuan
 
-Home page dung 4 ma chuan trong bo 160 ma (`public/qr/batch`) de test nhanh:
+Home page dung 1 ma goc chuan ban dau (`public/qr/original-fresh.svg`) de test nhanh:
 
-- `QR-024` → fresh
-- `QR-064` → degraded
-- `QR-102` → spoiled
-- `QR-142` → critical
+- `QR-ORIGINAL-FRESH` → fresh
 
 ## Checklist test
 

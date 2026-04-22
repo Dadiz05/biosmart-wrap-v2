@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import BrandMark from "./BrandMark";
 import ResultCard from "./ResultCard";
-import { IconAlertTriangle, IconCamera, IconCheckCircle, IconStop, IconX } from "./Icons";
+import { IconCamera, IconStop, IconX } from "./Icons";
 import { useStore } from "../store/useStore";
 import { useCamera } from "../hooks/useCamera";
 import { analyzeScanFrameWithAI } from "../services/scanPipeline";
@@ -509,55 +509,50 @@ export default function QRScanner({ open, onClose, lightMode = false }: Props) {
 
       {aiResult ? (
         <div
-          className="absolute inset-0 z-[10050] overflow-y-auto px-4 py-3 sm:py-6"
+          className="absolute inset-0 z-[10050] overflow-y-auto px-4 py-6 sm:py-8 bg-gradient-to-b"
           style={{
-            backgroundColor: statusBackground(aiResult.ph.status).bg,
+            backgroundImage: `linear-gradient(to bottom, ${statusBackground(aiResult.ph.status).bg}dd, ${statusBackground(aiResult.ph.status).bg}ff)`,
             color: statusBackground(aiResult.ph.status).text,
           }}
         >
           <div className="mx-auto w-full max-w-md">
-            <div className="mb-2 flex items-center justify-between gap-3 rounded-3xl bg-white/18 px-4 py-3 shadow-lg ring-1 ring-white/30 backdrop-blur">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-current/80">
-                  Kết quả quét
-                </div>
-                <div className="mt-1 text-base font-semibold sm:text-lg">QR ID {aiResult.qr.qrId}</div>
-              </div>
-              {aiResult.ph.status === "fresh" ? (
-                <IconCheckCircle className="h-8 w-8" />
-              ) : (
-                <IconAlertTriangle className="h-8 w-8" />
-              )}
+            {/* Header */}
+            <div className="mb-6 text-center">
+              <div className="text-xs font-semibold uppercase tracking-wide opacity-80 mb-2">Kết quả quét</div>
+              <div className="text-lg font-semibold">Mã QR: <span className="font-black">{aiResult.qr.qrId}</span></div>
             </div>
 
-            <div className="mb-2 rounded-3xl bg-white/18 px-4 py-3 text-center shadow-lg ring-1 ring-white/30 backdrop-blur sm:px-5 sm:py-4">
-              <div className="text-xs font-medium uppercase tracking-wide text-current/80 sm:text-sm">Độ pH</div>
-              <div className="mt-1 text-4xl font-black leading-none sm:text-5xl">{aiResult.ph.ph.toFixed(2)}</div>
-              <div className="mt-1 text-sm font-semibold text-current/90 sm:mt-2">{aiResult.ph.label}</div>
+            {/* ResultCard component (compact mode) */}
+            <div className="mb-6">
+              <ResultCard compact />
             </div>
 
-            <ResultCard compact />
-
-            <div className="mt-3 grid gap-2">
+            {/* Action buttons */}
+            <div className="mt-4 grid gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setAI(null);
                   void startScan();
                 }}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white/85 px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-black/15 ring-1 ring-white/40 active:scale-[0.99]"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-black/20 active:scale-[0.98] hover:bg-white/95 transition-all"
               >
                 <IconCamera className="h-5 w-5" />
-                Quét lại
+                Quét tiếp
               </button>
               <button
                 type="button"
                 onClick={handleCloseScanner}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white/20 px-6 py-3 text-sm font-semibold text-current ring-1 ring-white/35 active:scale-[0.99]"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white/20 px-6 py-3 text-sm font-semibold text-current ring-1 ring-white/40 backdrop-blur active:scale-[0.98] hover:bg-white/25 transition-all"
               >
                 <IconX className="h-4 w-4" />
                 Về trang chính
               </button>
+            </div>
+
+            {/* Footer tip */}
+            <div className="mt-4 text-center text-xs opacity-75">
+              💡 Nhấn "Quét tiếp" để kiểm tra nhiều mặt hàng khác
             </div>
           </div>
         </div>
